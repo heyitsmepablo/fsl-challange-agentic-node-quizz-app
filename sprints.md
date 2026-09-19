@@ -8,9 +8,10 @@
 
 - Initialize a basic NestJS project.
 - Install Prisma, `@nestjs/swagger`, and `@nestjs/event-emitter`.
-- Configure Prisma with SQLite and create the following schema models: `User`, `Quiz`, `Question`, `Option`, `Attempt`, and `Notification`.
-- Apply these schema rules: `Attempt` relates to `User` and `Quiz`. `Notification` has a 1-1 relationship with `Attempt`.
-- Create a `seed.ts` script to populate the database with 2 quizzes about AI concepts (at least 5 questions each, including correct answers and explanations) and 1 default user.
+- Configure Prisma with SQLite and create the following schema models: `User`, `Quiz`, `Question`, `Option`, `Attempt`, `AttemptAnswer` (to store individual user submissions), and `Notification`.
+- Apply these schema rules: `Attempt` relates to `User` and `Quiz`. `AttemptAnswer` relates to `Attempt`, `Question`, and `Option`. `Notification` has a 1-1 relationship with `Attempt`.
+- Create a global `PrismaModule` and `PrismaService` extending PrismaClient and implementing `OnModuleInit`. Export it so other modules can use it.
+- Create a `seed.ts` script to populate the database with 2 quizzes about AI concepts (at least 5 questions each, including correct answers and explanations) and 1 default user (hardcode the user ID as 'user-123' to easily test later).
 - Configure Swagger documentation in `main.ts`.
 
 ---
@@ -30,21 +31,26 @@
 
 ---
 
-## 🏃 Sprint 3: The Core (Submission & Scoring Logic)
+## 🏃 Sprint 3: The Core (Start Attempt, Submission & Scoring Logic)
 
-**Goal:** Process user submissions, calculate scores, and trigger the async completion event.
+**Goal:** Allow users to start an attempt, process their submissions, store individual answers, calculate scores, and trigger the async completion event.
 
 **Tasks for the Agent:**
 
-- Generate the `AttemptModule` and create the `POST /attempts/submit` route.
-- The payload must accept: `userId`, `quizId`, and an `answers` array `[{questionId, optionId}]`.
-- Implement the following business logic in the Service:
-  1. Fetch the quiz answer key from the database (this query is allowed to read `isCorrect`).
-  2. Calculate the total score and percentage.
-  3. Generate a performance `message` based on the percentage (e.g., <50% try again, >80% excellent).
-  4. Save the `Attempt` to the database and create a `Notification` record with status 'PENDING'.
-  5. Return the score, message, and a detailed question breakdown to the user (now it is safe to expose whether they got it right, the correct option, and the explanation).
-  6. Emit a `quiz.completed` event passing the `attemptId` using `@nestjs/event-emitter`.
+- Generate the `AttemptModule`, `AttemptController`, and `AttemptService`.
+- Create the **`POST /attempts/start`** route:
+  - Payload: `userId` and `quizId`.
+  - Logic: Create a new `Attempt` in the database with a 'IN_PROGRESS' status. Return the `Attempt` ID along with the Quiz questions and options. **CRITICAL:** Do NOT leak `isCorrect` or `explanation` here.
+- Create the **`POST /attempts/:attemptId/submit`** route:
+  - Payload: An `answers` array `[{questionId, optionId}]`.
+  - Implement the following business logic in the Service:
+    1. Fetch the in-progress `Attempt` and the quiz answer key from the database.
+    2. Save each answer into the database using the `AttemptAnswer` model (satisfying the 'individual answer submissions per attempt' requirement).
+    3. Calculate the total score and percentage.
+    4. Generate a performance `message` based on the percentage (e.g., <50% try again, >80% excellent).
+    5. Update the `Attempt` status to 'COMPLETED' with the final score, and create a `Notification` record with status 'PENDING'.
+    6. Return the score, message, and a detailed question breakdown to the user (now it is safe to expose whether they got it right, the correct option, and the explanation).
+    7. Emit a `quiz.completed` event passing the `attemptId` using `@nestjs/event-emitter`.
 
 ---
 
