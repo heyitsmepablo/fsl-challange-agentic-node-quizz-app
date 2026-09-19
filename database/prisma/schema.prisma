@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../api/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id       String    @id @default(uuid())
+  name     String
+  email    String    @unique
+  attempts Attempt[]
+}
+
+model Quiz {
+  id          String     @id @default(uuid())
+  title       String
+  description String
+  questions   Question[]
+  attempts    Attempt[]
+}
+
+model Question {
+  id          String   @id @default(uuid())
+  quizId      String
+  quiz        Quiz     @relation(fields: [quizId], references: [id])
+  text        String
+  explanation String // Só revelado no final
+  options     Option[]
+}
+
+model Option {
+  id         String   @id @default(uuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
+  text       String
+  isCorrect  Boolean // NUNCA vazar na listagem
+}
+
+model Attempt {
+  id           String        @id @default(uuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
+  quizId       String
+  quiz         Quiz          @relation(fields: [quizId], references: [id])
+  score        Int
+  total        Int
+  percentage   Float
+  message      String
+  createdAt    DateTime      @default(now())
+  notification Notification?
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  attemptId String   @unique
+  attempt   Attempt  @relation(fields: [attemptId], references: [id])
+  status    String // PENDING, SENT, FAILED
+  error     String?
+  updatedAt DateTime @updatedAt
+}
