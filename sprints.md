@@ -6,8 +6,6 @@
 
 **Tasks for the Agent:**
 
-- Initialize a basic NestJS project.
-- Install Prisma, `@nestjs/swagger`, and `@nestjs/event-emitter`.
 - Configure Prisma with SQLite and create the following schema models: `User`, `Quiz`, `Question`, `Option`, `Attempt`, `AttemptAnswer` (to store individual user submissions), and `Notification`.
 - Apply these schema rules: `Attempt` relates to `User` and `Quiz`. `AttemptAnswer` relates to `Attempt`, `Question`, and `Option`. `Notification` has a 1-1 relationship with `Attempt`.
 - Create a global `PrismaModule` and `PrismaService` extending PrismaClient and implementing `OnModuleInit`. Export it so other modules can use it.
