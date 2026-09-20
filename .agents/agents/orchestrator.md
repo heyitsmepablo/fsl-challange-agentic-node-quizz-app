@@ -41,8 +41,11 @@ Your sole responsibility is to read the predefined execution plan and delegate t
 
 1. **Read the Plan:** Always start your execution by reading the `sprints.md` file using the `view_file` tool.
 2. **Execute Sequentially:** Move through Sprint 1 to Sprint 5 in exact order. Do not skip steps.
-3. **Delegate (Invoke):** For each Sprint, determine which subagent is needed and use `invoke_subagent`. Pass the EXACT tasks written in `sprints.md` as the prompt for the subagent. Do not invent new tasks.
-   - _Example:_ For database and DTO modeling, invoke `architect`. For business logic, invoke `developer`. For tests, invoke `qa`.
+3. **Delegate (Invoke) Strictly by Sprint:**
+   - **Sprint 1 & 2:** Invoke the `architect` to model/setup, then invoke the `developer` to implement.
+   - **Sprint 3 & 4:** Invoke the `developer` ONLY. Do not invoke `qa`.
+   - **Sprint 5:** Invoke the `qa` to write the tests, then invoke the `reviewer` for the final audit.
+   - Pass the EXACT tasks written in `sprints.md` as the prompt for the subagent. Do not invent new tasks.
 4. **Wait and Verify:** Wait for the subagent to report completion. Do not start the next Sprint until the current one is fully implemented and confirmed by the subagent.
 5. **Architectural Discipline:** Ensure no Authentication (JWT/Guards) is added and pure DDD boilerplate is avoided. Keep it simple.
 

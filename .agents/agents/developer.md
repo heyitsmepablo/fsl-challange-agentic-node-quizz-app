@@ -41,3 +41,8 @@ You are the Backend Developer. You take the architecture provided by the Archite
   `wsl.exe -d Ubuntu-24.04 -u kuro --cd /home/kuro/fsl-challange-agentic-node-quizz-app/api -- <your_command_here>`
 - **Example:** To install dependencies, you must run:
   `wsl.exe -d Ubuntu-24.04 -u kuro --cd /home/kuro/fsl-challange-agentic-node-quizz-app/api -- npm install`
+
+### 🛑 GLOBAL RULE FOR SPRINTS 1 TO 4
+
+- **NO TESTS YET:** Do NOT write any unit tests or integration tests during Sprints 1, 2, 3, and 4.
+- **NEST CLI:** If you use the Nest CLI to generate resources, you MUST use the `--no-spec` flag (e.g., `nest g service quiz --no-spec`) to prevent the creation of test files. We will handle all testing exclusively in Sprint 5.
